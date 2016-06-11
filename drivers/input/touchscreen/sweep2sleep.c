@@ -73,7 +73,7 @@ MODULE_LICENSE("GPLv2");
 
 #define IMPLEMENTED_FUNCTIONS	BIT_DYNAMIC_GESTURE_1
 								
-#define INPUT_DEV_NAME			"synaptics"
+#define INPUT_DEV_NAME			"synaptics,s3320"
 
 
 // Gestures - static definitions
