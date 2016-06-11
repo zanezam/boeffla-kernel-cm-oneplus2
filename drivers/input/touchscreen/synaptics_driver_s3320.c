@@ -155,7 +155,7 @@ struct test_header {
 #define BIT6 (0x1 << 6)
 #define BIT7 (0x1 << 7)
 
-#define IMPLEMENTED_FUNCTIONS	(BIT0)
+#define IMPLEMENTED_FUNCTIONS	(BIT0 | BIT1)
 
 int LeftVee_gesture = 0; //">"
 int RightVee_gesture = 0; //"<"
@@ -1256,11 +1256,9 @@ static void gesture_judge(struct synaptics_ts_data *ts)
         ||(gesture == LeftVee && LeftVee_gesture)||(gesture == UpVee && UpVee_gesture)\
         ||(gesture == Circle && Circle_gesture)||(gesture == DouSwip && DouSwip_gesture)){
 
-		// AP: commented out for CM - CM has its own handling
-
 		// check if haptic feedback for gesture should be suppressed
-		//if (DisableGestureHaptic)
-		//	qpnp_hap_ignore_next_request();
+		if (DisableGestureHaptic)
+			qpnp_hap_ignore_next_request();
 
 		gesture_upload = gesture;
 		input_report_key(ts->input_dev, keyCode, 1);
@@ -1271,25 +1269,23 @@ static void gesture_judge(struct synaptics_ts_data *ts)
     else if ((gesture == Left2RightSwip && Left2RightSwip_gesture)||(gesture == Right2LeftSwip && Right2LeftSwip_gesture)\
 			||(gesture == Up2DownSwip && Up2DownSwip_gesture)||(gesture == Down2UpSwip && Down2UpSwip_gesture))
     {
-		// AP: commented out for CM - CM has its own handling
-		
 		// if user has double tap gesture enabled, we can still deliver haptic feedback also for swipe gestures (incl. proximity check)
 		// hence we check if this is the case and if user wants to receive haptic feedback
 		// if not, send power key
-		//if (DouTap_gesture && !DisableGestureHaptic)
-		//{
-		//	gesture = DouTap;
-		//	gesture_upload = gesture;
-		//	input_report_key(ts->input_dev, keyCode, 1);
-		//	input_sync(ts->input_dev);
-		//	input_report_key(ts->input_dev, keyCode, 0);
-		//	input_sync(ts->input_dev);
-		//}
-		//else
-		//{
+		if (DouTap_gesture && !DisableGestureHaptic)
+		{
+			gesture = DouTap;
+			gesture_upload = gesture;
+			input_report_key(ts->input_dev, keyCode, 1);
+			input_sync(ts->input_dev);
+			input_report_key(ts->input_dev, keyCode, 0);
+			input_sync(ts->input_dev);
+		}
+		else
+		{
 			// press powerkey
 			schedule_work(&boeffla_syn_presspwr_work);
-		//}
+		}
 	}
 	else
 	{
