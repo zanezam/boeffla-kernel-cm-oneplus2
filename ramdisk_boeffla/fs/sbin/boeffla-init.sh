@@ -24,6 +24,7 @@
 	CWM_RESET_ZIP="boeffla-config-reset-v5.zip"
 	INITD_ENABLER="/data/.boeffla/enable-initd"
 	PERMISSIVE_ENABLER="/data/.boeffla/enable-permissive"
+	DISABLE_DEFAULT_ZRAM="/data/.boeffla/disable-default-zram"
 	DOZE_DISABLER="/data/.boeffla/disable-doze"
 
 # If not yet existing, create a boeffla-kernel-data folder on sdcard 
@@ -68,7 +69,17 @@
 	/sbin/busybox sync
 	/sbin/busybox mount -o remount,commit=20,noatime $DATA_DEVICE /data
 	/sbin/busybox sync
-	
+
+	# enable default zram
+	if [ ! -f $DISABLE_DEFAULT_ZRAM ]; then
+		echo "1" > /sys/block/zram0/reset
+		echo "536870912" > /sys/block/zram0/disksize
+		echo "4" > /sys/block/zram0/max_comp_streams
+		busybox mkswap /dev/block/zram0
+		busybox swapon -p -1 /dev/block/zram0
+		echo $(date) "Default zRam enabled" >> $BOEFFLA_LOGFILE
+	fi
+
 	echo $(date) Boeffla-Kernel default settings applied >> $BOEFFLA_LOGFILE
 
 # Execute early startconfig placed by Boeffla-Config V2 app, if there is one
