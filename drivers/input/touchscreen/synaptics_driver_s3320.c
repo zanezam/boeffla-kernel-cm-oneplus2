@@ -47,6 +47,8 @@
 #include <linux/timer.h>
 #include <linux/time.h>
 
+#include <linux/boeffla_powerkey_helper.h>
+
 #ifdef CONFIG_FB
 #include <linux/fb.h>
 #include <linux/notifier.h>
@@ -173,8 +175,6 @@ int Down2UpSwip_gesture =0;//"down to up |"
 int Wgestrue_gesture =0;//"(W)"
 int Mgestrue_gesture =0;//"(M)"
 
-int DisableGestureHaptic = 0;
-
 #endif
 //ruanbanmao@BSP add for tp gesture 2015-05-06, end
 #endif
@@ -217,10 +217,6 @@ static struct workqueue_struct *synaptics_report = NULL;
 static struct proc_dir_entry *prEntry_tp = NULL;
 static struct proc_dir_entry *prEntry_sweep_wake_tap = NULL;
 static struct proc_dir_entry *prEntry_sweep_wake_tap_implemented = NULL;
-static struct input_dev * boeffla_syn_pwrdev;
-static DEFINE_MUTEX(boeffla_syn_pwrkeyworklock);
-void qpnp_hap_ignore_next_request(void);
-
 
 #ifdef SUPPORT_GESTURE
 static uint32_t clockwise;
@@ -389,26 +385,6 @@ struct synaptics_optimize_data{
 	const struct i2c_device_id *dev_id;
 };
 static struct synaptics_optimize_data optimize_data;
-
-
-static void boeffla_syn_presspwr(struct work_struct * boeffla_syn_presspwr_work)
-{
-	if (!mutex_trylock(&boeffla_syn_pwrkeyworklock))
-		return;
-
-	input_event(boeffla_syn_pwrdev, EV_KEY, KEY_POWER, 1);
-	input_event(boeffla_syn_pwrdev, EV_SYN, 0, 0);
-	msleep(60);
-
-	input_event(boeffla_syn_pwrdev, EV_KEY, KEY_POWER, 0);
-	input_event(boeffla_syn_pwrdev, EV_SYN, 0, 0);
-	msleep(60);
-
-    mutex_unlock(&boeffla_syn_pwrkeyworklock);
-	return;
-}
-static DECLARE_WORK(boeffla_syn_presspwr_work, boeffla_syn_presspwr);
-
 
 static void synaptics_ts_probe_func(struct work_struct *w)
 {
@@ -1256,12 +1232,6 @@ static void gesture_judge(struct synaptics_ts_data *ts)
         ||(gesture == LeftVee && LeftVee_gesture)||(gesture == UpVee && UpVee_gesture)\
         ||(gesture == Circle && Circle_gesture)||(gesture == DouSwip && DouSwip_gesture)){
 
-		// AP: commented out for CM - CM has its own handling
-
-		// check if haptic feedback for gesture should be suppressed
-		//if (DisableGestureHaptic)
-		//	qpnp_hap_ignore_next_request();
-
 		gesture_upload = gesture;
 		input_report_key(ts->input_dev, keyCode, 1);
 		input_sync(ts->input_dev);
@@ -1271,25 +1241,8 @@ static void gesture_judge(struct synaptics_ts_data *ts)
     else if ((gesture == Left2RightSwip && Left2RightSwip_gesture)||(gesture == Right2LeftSwip && Right2LeftSwip_gesture)\
 			||(gesture == Up2DownSwip && Up2DownSwip_gesture)||(gesture == Down2UpSwip && Down2UpSwip_gesture))
     {
-		// AP: commented out for CM - CM has its own handling
-		
-		// if user has double tap gesture enabled, we can still deliver haptic feedback also for swipe gestures (incl. proximity check)
-		// hence we check if this is the case and if user wants to receive haptic feedback
-		// if not, send power key
-		//if (DouTap_gesture && !DisableGestureHaptic)
-		//{
-		//	gesture = DouTap;
-		//	gesture_upload = gesture;
-		//	input_report_key(ts->input_dev, keyCode, 1);
-		//	input_sync(ts->input_dev);
-		//	input_report_key(ts->input_dev, keyCode, 0);
-		//	input_sync(ts->input_dev);
-		//}
-		//else
-		//{
-			// press powerkey
-			schedule_work(&boeffla_syn_presspwr_work);
-		//}
+		// press powerkey
+		boeffla_press_powerkey();
 	}
 	else
 	{
@@ -1621,7 +1574,7 @@ static ssize_t tp_sweep_wake_read_func(struct file *file, char __user *user_buf,
 {
 	int ret = 0;
 	char page[PAGESIZE];
-	ret = sprintf(page, "%d\n", Left2RightSwip_gesture + (DisableGestureHaptic * BIT1));
+	ret = sprintf(page, "%d\n", Left2RightSwip_gesture);
 	ret = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
 	return ret;
 }
@@ -1642,8 +1595,6 @@ static ssize_t tp_sweep_wake_write_func(struct file *file, const char __user *bu
 	Right2LeftSwip_gesture = (buf[0] & BIT0) ? 1 : 0;
 	Up2DownSwip_gesture = (buf[0] & BIT0) ? 1 : 0;
 	Down2UpSwip_gesture = (buf[0] & BIT0) ? 1 : 0;
-
-	DisableGestureHaptic = (buf[0] & BIT1) ? 1 : 0;
 
 	if(DouTap_gesture||Circle_gesture||UpVee_gesture||LeftVee_gesture\
         ||RightVee_gesture||DouSwip_gesture\
@@ -3981,30 +3932,10 @@ static int fb_notifier_callback(struct notifier_block *self, unsigned long event
 
 static int __init tpd_driver_init(void)
 {
-	int rc = 0;
-
 	printk("Synaptics:%s is called\n", __func__);
 	if( i2c_add_driver(&tpd_i2c_driver)!= 0 ){
 		TPDTM_DMESG("unable to add i2c driver.\n");
 		return -1;
-	}
-
-	// allocate and register input device for sending power key events
-	boeffla_syn_pwrdev = input_allocate_device();
-	if (!boeffla_syn_pwrdev)
-	{
-		pr_err("Can't allocate suspend autotest power button\n");
-		return -EFAULT;
-	}
-
-	input_set_capability(boeffla_syn_pwrdev, EV_KEY, KEY_POWER);
-	boeffla_syn_pwrdev->name = "boeffla_syn_pwrkey";
-	boeffla_syn_pwrdev->phys = "boeffla_syn_pwrkey/input0";
-	rc = input_register_device(boeffla_syn_pwrdev);
-	if (rc)
-	{
-		pr_err("%s: input_register_device err=%d\n", __func__, rc);
-		return -EFAULT;
 	}
 
 	return 0;
