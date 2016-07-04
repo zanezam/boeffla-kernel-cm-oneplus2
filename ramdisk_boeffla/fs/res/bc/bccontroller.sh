@@ -635,12 +635,10 @@ if [ "apply_cpu_hotplug_profile_2" == "$1" ] || [ "revert_big_cpu_cluster_online
 	fi
 	
 	# Default "min=2, max=4", or when no profile set
-	# this is full stock = permissions set so rom can change core_ctl settings
-	# to e.g. switch off cores when certain apps running (like Chrome etc.) -- however not used in CM, anyways
 	echo 2 > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus
 	echo 4 > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus
-	chmod 644 /sys/devices/system/cpu/cpu4/core_ctl/min_cpus
-	chmod 644 /sys/devices/system/cpu/cpu4/core_ctl/max_cpus
+	chmod 444 /sys/devices/system/cpu/cpu4/core_ctl/min_cpus
+	chmod 444 /sys/devices/system/cpu/cpu4/core_ctl/max_cpus
 
 	exit 0;
 fi
