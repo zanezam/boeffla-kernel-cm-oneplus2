@@ -330,8 +330,9 @@ chmod 755 $ramdisk/sbin/busybox
 chmod -R 755 $ramdisk/res/bc
 chmod -R 755 $ramdisk/res/misc
 
-backup_file fstab.qcom
-comment_line fstab.qcom "/dev/block/zram0"
+backup_file init.qcom.rc
+# replace_string <file> <if search string> <original string> <replacement string>
+replace_string init.qcom.rc "init.zram.sh.bak" "init.zram.sh" "init.zram.sh.bak"
 
 ############### Ramdisk customization end ###############
 

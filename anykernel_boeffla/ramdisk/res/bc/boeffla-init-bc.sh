@@ -78,7 +78,7 @@
 		echo "536870912" > /sys/block/zram0/disksize
 		echo "4" > /sys/block/zram0/max_comp_streams
 		busybox mkswap /dev/block/zram0
-		busybox swapon -p -1 /dev/block/zram0
+		busybox swapon /dev/block/zram0 -p 32758
 		echo $(date) "Default zRam enabled" >> $BOEFFLA_LOGFILE
 	fi
 
