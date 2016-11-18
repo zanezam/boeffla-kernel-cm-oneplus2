@@ -13,7 +13,7 @@
 # ********************************
 
 # kernel specification (hardware; type; target; url)
-KERNEL_SPECS="oneplus2;cm;cm14.0;http://kernel.boeffla.de/oneplus2/boeffla-kernel-cm/"
+KERNEL_SPECS="oneplus2;cm;cm14.0;http://kernel.boeffla.de/oneplus2/boeffla-kernel-cm/;boeffla-kernel-#VERSION#-CM14.1-OnePlus2-anykernel.recovery.zip"
 
 # kernel features 
 # (1=enable-busybox,2=enable-frandom,3=wipe-cache,4=disable-zram-control)
