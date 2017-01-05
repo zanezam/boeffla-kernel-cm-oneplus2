@@ -3,7 +3,7 @@
 # Boeffla-Config controller interface
 #
 # *******************************
-# Oneplus 2 CM14 version
+# Oneplus 2 Lineage14 version
 #
 # V0.1
 # *******************************
@@ -13,7 +13,7 @@
 # ********************************
 
 # kernel specification (hardware; type; target; url)
-KERNEL_SPECS="oneplus2;cm;cm14.0;http://kernel.boeffla.de/oneplus2/boeffla-kernel-cm/;boeffla-kernel-#VERSION#-CM14.1-OnePlus2-anykernel.recovery.zip"
+KERNEL_SPECS="oneplus2;cm;cm14.0;http://kernel.boeffla.de/oneplus2/boeffla-kernel-cm/;boeffla-kernel-#VERSION#-Lineage14.1-OnePlus2-anykernel.recovery.zip"
 
 # kernel features 
 # (1=enable-busybox,2=enable-frandom,3=wipe-cache,4=disable-zram-control)
@@ -511,7 +511,7 @@ if [ "apply_cpu_hotplug_profile_2" == "$1" ] || [ "revert_big_cpu_cluster_online
 	chmod 666 /sys/devices/system/cpu/cpu4/core_ctl/min_cpus
 	chmod 666 /sys/devices/system/cpu/cpu4/core_ctl/max_cpus
 
-	# In CM, we always have to do that as msm_core_ctl does nt work when other drivers
+	# In Lineage, we always have to do that as msm_core_ctl does nt work when other drivers
 	# like bcl, thermal etc. have taken over!!! So the if clauses are commented due to that !!!
 	
 	# if we should bring down cpu cluster 2 now, do exactly the following sequence:
