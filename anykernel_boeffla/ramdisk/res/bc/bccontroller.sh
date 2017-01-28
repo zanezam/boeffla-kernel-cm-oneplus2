@@ -524,6 +524,11 @@ if [ "apply_cpu_hotplug_profile_2" == "$1" ] || [ "revert_big_cpu_cluster_online
 		echo 0 > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus
 
 		# now bring down via sysfs
+		# (in Lineage 14.1 permissions sometimes change, so correct them)
+		chmod 644 /sys/devices/system/cpu/cpu4/online
+		chmod 644 /sys/devices/system/cpu/cpu5/online
+		chmod 644 /sys/devices/system/cpu/cpu6/online
+		chmod 644 /sys/devices/system/cpu/cpu7/online
 		echo 0 > /sys/devices/system/cpu/cpu4/online
 		echo 0 > /sys/devices/system/cpu/cpu5/online
 		echo 0 > /sys/devices/system/cpu/cpu6/online
@@ -1465,6 +1470,11 @@ if [ "bring_big_cpu_cluster_online" == "$1" ]; then
 	chmod 444 /sys/devices/system/cpu/cpu4/core_ctl/max_cpus
 	
 	# now bring up via sysfs
+	# (in Lineage 14.1 permissions sometimes change, so correct them)
+	chmod 644 /sys/devices/system/cpu/cpu4/online
+	chmod 644 /sys/devices/system/cpu/cpu5/online
+	chmod 644 /sys/devices/system/cpu/cpu6/online
+	chmod 644 /sys/devices/system/cpu/cpu7/online
 	echo 1 > /sys/devices/system/cpu/cpu4/online
 	echo 1 > /sys/devices/system/cpu/cpu5/online
 	echo 1 > /sys/devices/system/cpu/cpu6/online
