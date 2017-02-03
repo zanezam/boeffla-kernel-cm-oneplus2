@@ -72,14 +72,16 @@
 	/sbin/busybox mount -o remount,commit=20,noatime $DATA_DEVICE /data
 	/sbin/busybox sync
 
-	# enable default zram
+	# enable default zram (if some custom roms already enabled it, skip this)
 	if [ ! -f $DISABLE_DEFAULT_ZRAM ]; then
-		echo "1" > /sys/block/zram0/reset
-		echo "536870912" > /sys/block/zram0/disksize
-		echo "4" > /sys/block/zram0/max_comp_streams
-		busybox mkswap /dev/block/zram0
-		busybox swapon /dev/block/zram0 -p 32758
-		echo $(date) "Default zRam enabled" >> $BOEFFLA_LOGFILE
+		if ! grep -q zram0 /proc/swaps; then
+			echo "1" > /sys/block/zram0/reset
+			echo "536870912" > /sys/block/zram0/disksize
+			echo "4" > /sys/block/zram0/max_comp_streams
+			busybox mkswap /dev/block/zram0
+			busybox swapon /dev/block/zram0 -p 32758
+			echo $(date) "Default zRam enabled" >> $BOEFFLA_LOGFILE
+		fi
 	fi
 
 	echo $(date) Boeffla-Kernel default settings applied >> $BOEFFLA_LOGFILE
