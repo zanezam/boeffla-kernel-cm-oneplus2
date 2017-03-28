@@ -386,11 +386,11 @@ LINUXINCLUDE    := \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -Wno-misleading-indentation \
-		   -fno-strict-aliasing -fno-common -Wno-bool-compare -Wno-unused-const-variable \
-		   -Werror-implicit-function-declaration -Wno-logical-not-parentheses \
-		   -Wno-format-security -Wno-memset-transposed-args -Wno-switch-bool \
-		   -fno-delete-null-pointer-checks -Wno-maybe-uninitialized \
+KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -Wno-misleading-indentation -Wno-bool-operation \
+		   -fno-strict-aliasing -fno-common -Wno-bool-compare -Wno-unused-const-variable -Wno-nonnull -Wno-switch-unreachable \
+		   -Werror-implicit-function-declaration -Wno-logical-not-parentheses -Wno-format-truncation -Wno-format-overflow \
+		   -Wno-format-security -Wno-memset-transposed-args -Wno-switch-bool -Wno-duplicate-decl-specifier \
+		   -fno-delete-null-pointer-checks -Wno-maybe-uninitialized -Wno-memset-elt-size -Wno-int-in-bool-context \
 		   -std=gnu89 \
 		   $(GEN_OPT_FLAGS)
 KBUILD_AFLAGS_KERNEL := $(GEN_OPT_FLAGS)
