@@ -386,8 +386,8 @@ LINUXINCLUDE    := \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common -Wno-bool-compare \
+KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -Wno-misleading-indentation \
+		   -fno-strict-aliasing -fno-common -Wno-bool-compare -Wno-unused-const-variable \
 		   -Werror-implicit-function-declaration -Wno-logical-not-parentheses \
 		   -Wno-format-security -Wno-memset-transposed-args -Wno-switch-bool \
 		   -fno-delete-null-pointer-checks -Wno-maybe-uninitialized \
