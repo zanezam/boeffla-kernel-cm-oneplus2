@@ -33,12 +33,6 @@
 
 #define XO_CLK_RATE	19200000
 
-#ifdef VENDOR_EDIT/*guozhiming@oem_display add for the RF WLAN mode using*/
-//#include <linux/boot_mode.h>
-
-//static int rf_wlan_test_mode=0;
-
-#endif
 static struct dsi_drv_cm_data shared_ctrl_data;
 
 static int mdss_dsi_pinctrl_set_state(struct mdss_dsi_ctrl_pdata *ctrl_pdata,

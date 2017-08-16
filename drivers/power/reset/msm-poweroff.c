@@ -266,6 +266,7 @@ static void msm_restart_prepare(const char *cmd)
 			strcmp(cmd, "keys clear")))
 			need_warm_reset = true;
 	}
+
 #ifdef VENDOR_EDIT
 /* add by yangrujin@bsp 2015/10/27, warm reboot for wlan/rf/ftm/kernel/modem/android mode*/
     if(!need_warm_reset){
@@ -273,6 +274,7 @@ static void msm_restart_prepare(const char *cmd)
             strcmp(cmd, "bootloader") && strcmp(cmd, "rtc"));
     }
 #endif
+
 	/* Hard reset the PMIC unless memory contents must be maintained. */
 	if (need_warm_reset) {
 		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
@@ -334,6 +336,7 @@ static void msm_restart_prepare(const char *cmd)
 		} else if (!strncmp(cmd, "edl", 3)) {
 			enable_emergency_dload_mode();
 		} else {
+			qpnp_pon_set_restart_reason(PON_RESTART_REASON_UNKNOWN);
 			__raw_writel(0x77665501, restart_reason);
 		}
 	}

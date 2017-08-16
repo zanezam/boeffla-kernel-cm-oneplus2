@@ -7,10 +7,6 @@
 #include <linux/rtc.h>
 #include <linux/types.h>
 
-#ifdef VENDOR_EDIT
-#include <linux/types.h>
-#endif
-
 enum alarmtimer_type {
 	ALARM_REALTIME,
 	ALARM_BOOTTIME,
