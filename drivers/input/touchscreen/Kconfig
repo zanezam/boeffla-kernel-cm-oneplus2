@@ -1083,13 +1083,6 @@ config TOUCHSCREEN_SYNAPTICS_S3320_I2C_RMI
 	  This enables support for Synaptics s1302 RMI over I2C based touch key.
 #endif /*VENDOR_EDIT*/
 
-config TOUCHBOOST_CONTROL
-	bool "Touch boost control"
-	depends on INPUT_TOUCHSCREEN
-	help
-	  Boeffla Kernels functionality to control input boost as touch boost
-	  in the Boeffla Config app
-
 config TOUCHSCREEN_SWEEP2SLEEP
 	bool "Enable kernel support for Sweep2Sleep"
 	default n
@@ -1097,4 +1090,5 @@ config TOUCHSCREEN_SWEEP2SLEEP
 config BOEFFLA_POWERKEY_HELPER
 	bool "Enable Boeffla Powerkey helper"
 	default n
+
 endif
