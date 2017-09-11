@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -859,7 +859,8 @@ int msm_isp_release_axi_stream(struct vfe_device *vfe_dev, void *arg)
 		stream_cfg.stream_handle[0] = stream_release_cmd->stream_handle;
 		rc = msm_isp_cfg_axi_stream(vfe_dev, (void *) &stream_cfg);
 		if (rc < 0) {
-			pr_err("%s: msm_isp_cfg_axi_stream failed: %d\n", __func__, rc);
+			pr_err("%s: msm_isp_cfg_axi_stream failed: %d\n",
+				__func__, rc);
 			return rc;
 		}
 	}
@@ -2185,6 +2186,7 @@ static int msm_isp_return_empty_buffer(struct vfe_device *vfe_dev,
 		&vfe_dev->axi_data.src_info[frame_src].time_stamp, frame_id,
 		stream_info->runtime_output_format);
 
+	memset(&error_event, 0, sizeof(error_event));
 	error_event.frame_id = frame_id;
 	error_event.timestamp =
 		vfe_dev->axi_data.src_info[frame_src].time_stamp;
