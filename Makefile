@@ -391,7 +391,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -Wno-mislead
 		   -Werror-implicit-function-declaration -Wno-logical-not-parentheses -Wno-format-truncation -Wno-format-overflow \
 		   -Wno-format-security -Wno-memset-transposed-args -Wno-switch-bool -Wno-duplicate-decl-specifier \
 		   -fno-delete-null-pointer-checks -Wno-maybe-uninitialized -Wno-memset-elt-size -Wno-int-in-bool-context \
-		   -std=gnu89 \
+		   -std=gnu89 -Wno-packed-not-aligned \
 		   $(GEN_OPT_FLAGS)
 KBUILD_AFLAGS_KERNEL := $(GEN_OPT_FLAGS)
 KBUILD_CFLAGS_KERNEL := $(GEN_OPT_FLAGS)
