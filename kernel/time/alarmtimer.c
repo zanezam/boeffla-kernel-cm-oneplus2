@@ -13,7 +13,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ *  published by the Free Software Foundation.
  */
 #include <linux/time.h>
 #include <linux/hrtimer.h>
@@ -91,6 +91,8 @@ void power_on_alarm_init(void)
 		alarm_start(&init_alarm, alarm_ktime);
 	}
 }
+
+
 
 #ifndef VENDOR_EDIT  //shankai@oem add 2015-11-14 power up alarm support
 static  unsigned long power_on_alarm;
@@ -176,6 +178,8 @@ exit:
 }
 
 #endif //VENDOR_EDIT
+
+
 
 static void alarmtimer_triggered_func(void *p)
 {
@@ -618,8 +622,8 @@ u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
  * clock2alarm - helper that converts from clockid to alarmtypes
  * @clockid: clockid.
  */
-#ifdef VENDOR_EDIT  //shankai@oem add 2015-11-14 power up alarm support
-enum alarmtimer_type clock2alarm(clockid_t clockid)
+ #ifdef VENDOR_EDIT  //shankai@oem add 2015-11-14 power up alarm support
+ enum alarmtimer_type clock2alarm(clockid_t clockid)
 {
 	if (clockid == CLOCK_REALTIME_ALARM)
 		return ALARM_REALTIME;
@@ -1024,6 +1028,10 @@ static int __init alarmtimer_init(void)
 	posix_timers_register_clock(CLOCK_REALTIME_ALARM, &alarm_clock);
 	posix_timers_register_clock(CLOCK_BOOTTIME_ALARM, &alarm_clock);
 	posix_timers_register_clock(CLOCK_POWEROFF_ALARM, &alarm_clock);
+
+    #ifdef VENDOR_EDIT  //shankai@oem add 2015-11-14  for power off alarm support
+	posix_timers_register_clock(CLOCK_POWEROFF_ALARM, &alarm_clock);
+    #endif
 
 	/* Initialize alarm bases */
 	alarm_bases[ALARM_REALTIME].base_clockid = CLOCK_REALTIME;

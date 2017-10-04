@@ -4653,7 +4653,7 @@ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
 	u64 remaining;
 
 	/* if the call-back is running a quota refresh is already occurring */
-	if (hrtimer_callback_running(refresh_timer))
+	if (hrtimer_callback_running_relaxed(refresh_timer))
 		return 1;
 
 	/* is a quota refresh about to occur? */
@@ -6380,6 +6380,13 @@ static int move_tasks(struct lb_env *env)
 
 redo:
 	while (!list_empty(tasks)) {
+		/*
+		 * We don't want to steal all, otherwise we may be treated likewise,
+		 * which could at worst lead to a livelock crash.
+		 */
+		if (env->idle != CPU_NOT_IDLE && env->src_rq->nr_running <= 1)
+			break;
+
 		p = list_first_entry(tasks, struct task_struct, se.group_node);
 
 		env->loop++;

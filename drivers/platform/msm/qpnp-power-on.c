@@ -832,12 +832,14 @@ qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 	switch (cfg->pon_type) {
 	case PON_KPDPWR:
 		pon_rt_bit = QPNP_PON_KPDPWR_N_SET;
+        //#ifdef VENDOR_EDIT
         // neiltsai, 20151203, add for power key debug only!!
         if ((pon_rt_sts & pon_rt_bit) == 0)
               printk("Power-Key UP\n");
         else
               printk("Power-Key DOWN\n");
         // neil end
+        //#endif /* VENDOR_EDIT */
         break;
 	case PON_RESIN:
 		pon_rt_bit = QPNP_PON_RESIN_N_SET;

@@ -1747,7 +1747,11 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 	switch (blank_mode) {
 	case FB_BLANK_UNBLANK:
 		pr_debug("unblank called. cur pwr state=%d\n", cur_power_state);
+		#ifdef VENDOR_EDIT  /*ykl add for debug lcd issue*/
+	//	printk("display power on start\n");
 		ret = mdss_fb_blank_unblank(mfd);
+	//	printk("display power on end  \n");
+		#endif
 		break;
 	case BLANK_FLAG_ULP:
 		req_power_state = MDSS_PANEL_POWER_LP2;
@@ -1781,7 +1785,11 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 	default:
 		req_power_state = MDSS_PANEL_POWER_OFF;
 		pr_debug("blank powerdown called\n");
+		#ifdef VENDOR_EDIT  /*ykl add for debug lcd issue*/
+		//printk("display  power off  start\n");
 		ret = mdss_fb_blank_blank(mfd, req_power_state);
+	//	printk("display  power off  end  \n");
+		#endif
 		break;
 	}
 

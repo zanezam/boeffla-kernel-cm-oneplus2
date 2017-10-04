@@ -267,6 +267,10 @@ static void msm_restart_prepare(const char *cmd)
 			need_warm_reset = true;
 	}
 
+#ifdef CONFIG_MSM_PRESERVE_MEM
+	need_warm_reset = true;
+#endif
+
 #ifdef VENDOR_EDIT
 /* add by yangrujin@bsp 2015/10/27, warm reboot for wlan/rf/ftm/kernel/modem/android mode*/
     if(!need_warm_reset){

@@ -34,7 +34,7 @@
 #include <linux/slab.h>
 #include <linux/compiler.h>
 #include <linux/pstore_ram.h>
-#include <linux/of_address.h>
+#include <linux/of_address.h> 
 
 #define RAMOOPS_KERNMSG_HDR "===="
 #define MIN_MEM_SIZE 4096UL

@@ -2826,9 +2826,10 @@ unsigned long wait_task_inactive(struct task_struct *p, long match_state)
 		 * is actually now running somewhere else!
 		 */
 		while (task_running(rq, p)) {
-			if (match_state && unlikely(p->state != match_state))
+			if (match_state && unlikely(cpu_relaxed_read_long
+				(&(p->state)) != match_state))
 				return 0;
-			cpu_relax();
+			cpu_read_relax();
 		}
 
 		/*
@@ -3154,7 +3155,7 @@ void scheduler_ipi(void)
 {
 	int cpu = smp_processor_id();
 
-	if (llist_empty(&this_rq()->wake_list)
+	if (llist_empty_relaxed(&this_rq()->wake_list)
 			&& !tick_nohz_full_cpu(cpu)
 			&& !got_nohz_idle_kick()
 			&& !got_boost_kick())
@@ -3320,8 +3321,8 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
 	 * If the owning (remote) cpu is still in the middle of schedule() with
 	 * this task as prev, wait until its done referencing the task.
 	 */
-	while (p->on_cpu)
-		cpu_relax();
+	while (cpu_relaxed_read(&(p->on_cpu)))
+		cpu_read_relax();
 	/*
 	 * Pairs with the smp_wmb() in finish_lock_switch().
 	 */
@@ -4053,10 +4054,13 @@ static long calc_load_fold_active(struct rq *this_rq)
 static unsigned long
 calc_load(unsigned long load, unsigned long exp, unsigned long active)
 {
-	load *= exp;
-	load += active * (FIXED_1 - exp);
-	load += 1UL << (FSHIFT - 1);
-	return load >> FSHIFT;
+	unsigned long newload;
+
+	newload = load * exp + active * (FIXED_1 - exp);
+	if (active >= load)
+		newload += FIXED_1-1;
+
+	return newload / FIXED_1;
 }
 
 #ifdef CONFIG_NO_HZ_COMMON
@@ -4695,7 +4699,7 @@ void __kprobes add_preempt_count(int val)
 	if (DEBUG_LOCKS_WARN_ON((preempt_count() < 0)))
 		return;
 #endif
-	preempt_count() += val;
+	add_preempt_count_notrace(val);
 #ifdef CONFIG_DEBUG_PREEMPT
 	/*
 	 * Spinlock count overflowing soon?
@@ -4726,7 +4730,7 @@ void __kprobes sub_preempt_count(int val)
 
 	if (preempt_count() == val)
 		trace_preempt_on(CALLER_ADDR0, get_parent_ip(CALLER_ADDR1));
-	preempt_count() -= val;
+	sub_preempt_count_notrace(val);
 }
 EXPORT_SYMBOL(sub_preempt_count);
 
@@ -4845,6 +4849,9 @@ pick_next_task(struct rq *rq)
 static void __sched __schedule(void)
 {
 	struct task_struct *prev, *next;
+#ifdef CONFIG_TASK_CPUFREQ_STATS
+	struct task_struct *parent;
+#endif
 	unsigned long *switch_count;
 	struct rq *rq;
 	int cpu;
@@ -4908,7 +4915,15 @@ need_resched:
 	wallclock = sched_clock();
 	update_task_ravg(prev, rq, PUT_PREV_TASK, wallclock, 0);
 	update_task_ravg(next, rq, PICK_NEXT_TASK, wallclock, 0);
-	clear_tsk_need_resched(prev);
+#ifdef CONFIG_TASK_CPUFREQ_STATS
+	parent = prev;
+	if (prev->pid != prev->tgid) {
+		parent = find_task_by_vpid(prev->tgid);
+	}
+	task_update_cumulative_time_in_state(prev, parent, cpu_of(rq));
+	task_update_time_in_state(next, cpu_of(rq));
+#endif
+        clear_tsk_need_resched(prev);
 	rq->skip_clock_update = 0;
 
 	BUG_ON(task_cpu(next) != cpu_of(rq));
@@ -5704,7 +5719,7 @@ int idle_cpu(int cpu)
 		return 0;
 
 #ifdef CONFIG_SMP
-	if (!llist_empty(&rq->wake_list))
+	if (!llist_empty_relaxed(&rq->wake_list))
 		return 0;
 #endif
 
@@ -5737,6 +5752,8 @@ static void __setscheduler(struct rq *rq, struct task_struct *p,
 
 	if (policy == -1) /* setparam */
 		policy = p->policy;
+	else
+		policy &= ~SCHED_RESET_ON_FORK;
 
 	p->policy = policy;
 
@@ -10419,7 +10436,6 @@ struct cgroup_subsys cpu_cgroup_subsys = {
 	.css_offline	= cpu_cgroup_css_offline,
 	.can_attach	= cpu_cgroup_can_attach,
 	.attach		= cpu_cgroup_attach,
-	.allow_attach	= subsys_cgroup_allow_attach,
 	.exit		= cpu_cgroup_exit,
 	.subsys_id	= cpu_cgroup_subsys_id,
 	.base_cftypes	= cpu_files,

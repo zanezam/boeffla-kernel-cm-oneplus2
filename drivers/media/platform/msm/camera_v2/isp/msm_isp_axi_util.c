@@ -323,11 +323,10 @@ void msm_isp_axi_free_wm(struct msm_vfe_axi_shared_data *axi_data,
 		axi_data->free_wm[stream_info->wm[i]] = 0;
 		axi_data->num_used_wm--;
 	}
-	if (stream_info->stream_src <= IDEAL_RAW) {
+	if (stream_info->stream_src <= IDEAL_RAW)
 		axi_data->num_pix_stream++;
-	} else if (stream_info->stream_src < VFE_AXI_SRC_MAX) {
+	else if (stream_info->stream_src < VFE_AXI_SRC_MAX)
 		axi_data->num_rdi_stream++;
-	}
 }
 
 void msm_isp_axi_reserve_comp_mask(
@@ -860,7 +859,7 @@ int msm_isp_release_axi_stream(struct vfe_device *vfe_dev, void *arg)
 		rc = msm_isp_cfg_axi_stream(vfe_dev, (void *) &stream_cfg);
 		if (rc < 0) {
 			pr_err("%s: msm_isp_cfg_axi_stream failed: %d\n",
-				__func__, rc);
+				 __func__, rc);
 			return rc;
 		}
 	}
