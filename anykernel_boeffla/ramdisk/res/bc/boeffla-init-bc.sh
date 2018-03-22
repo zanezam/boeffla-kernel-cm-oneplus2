@@ -70,13 +70,6 @@
 	echo 1024 > /sys/block/mmcblk0/bdi/read_ahead_kb
 	/sbin/busybox sync
 
-	# Ext4 tweaks default to on
-	/sbin/busybox sync
-	/sbin/busybox mount -o remount,commit=20,noatime $CACHE_DEVICE /cache
-	/sbin/busybox sync
-	/sbin/busybox mount -o remount,commit=20,noatime $DATA_DEVICE /data
-	/sbin/busybox sync
-
 	# enable default zram (if some custom roms already enabled it, skip this)
 	if [ ! -f $DISABLE_DEFAULT_ZRAM ]; then
 		if ! grep -q zram0 /proc/swaps; then
@@ -160,11 +153,7 @@
 		. $BOEFFLA_STARTCONFIG
 		echo $(date) Startup configuration applied  >> $BOEFFLA_LOGFILE
 	else
-		# dynamic fsync to on
-		echo 1 > /sys/kernel/dyn_fsync/Dyn_fsync_active
-		/sbin/busybox sync
-
-		echo $(date) "No startup configuration found, enable all default settings"  >> $BOEFFLA_LOGFILE
+		echo $(date) "No startup configuration found"  >> $BOEFFLA_LOGFILE
 	fi
 
 # Turn off debugging for certain modules
